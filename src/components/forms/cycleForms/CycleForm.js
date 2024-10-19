@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { enGB } from "date-fns/locale"; 
 
 const cycleSchema = z.object({
   cycleNumber: z.number().min(1).max(10),
@@ -34,15 +35,14 @@ export default function CycleForm({ addCycle }) {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const onSubmit = (data) => {
-    data.startDate = startDate ? startDate.toISOString().slice(0, 10) : "";
-    data.endDate = endDate ? endDate.toISOString().slice(0, 10) : "";
-    console.log(data);
+  const onSubmit = useCallback((data) => {
+    data.startDate = startDate ? startDate.toLocaleDateString("en-GB") : "";
+    data.endDate = endDate ? endDate.toLocaleDateString("en-GB") : "";
     addCycle(data);
-  };
+  }, [addCycle, startDate, endDate]);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} locale={enGB}>
       <Box
         sx={{
           border: "0px solid transparent",
@@ -63,16 +63,11 @@ export default function CycleForm({ addCycle }) {
                   {...register("cycleNumber", { valueAsNumber: true })}
                   defaultValue={0}
                 >
-                  <MenuItem value={1}>1</MenuItem>
-                  <MenuItem value={2}>2</MenuItem>
-                  <MenuItem value={3}>3</MenuItem>
-                  <MenuItem value={4}>4</MenuItem>
-                  <MenuItem value={5}>5</MenuItem>
-                  <MenuItem value={6}>6</MenuItem>
-                  <MenuItem value={7}>7</MenuItem>
-                  <MenuItem value={8}>8</MenuItem>
-                  <MenuItem value={9}>9</MenuItem>
-                  <MenuItem value={10}>10</MenuItem>
+                   {Array.from({ length: 10 }, (_, i) => (
+                  <MenuItem key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </MenuItem>
+                ))}
                 </Select>
                 {errors.cycleNumber && (
                   <span>{errors.cycleNumber.message || "Cycle Number must be between 1-10"}</span>
@@ -85,10 +80,11 @@ export default function CycleForm({ addCycle }) {
               <DatePicker
                 fullWidth
                 label="DD/MM/YYYY"
+                format="dd/MM/yyyy"
                 value={startDate}
                 onChange={(newValue) => {
                   setStartDate(newValue);
-                  setValue("startDate", newValue ? newValue.toISOString() : "");
+                  setValue("startDate", newValue ? newValue.toLocaleDateString("en-GB") : "");
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -106,10 +102,11 @@ export default function CycleForm({ addCycle }) {
               <DatePicker
                 fullWidth
                 label="DD/MM/YYYY"
+                format="dd/MM/yyyy"
                 value={endDate}
                 onChange={(newValue) => {
                   setEndDate(newValue);
-                  setValue("endDate",newValue ? newValue.toISOString() : "");
+                  setValue("endDate",newValue ? newValue.toLocaleDateString("en-GB") : "");
                 }}
                 renderInput={(params) => (
                   <TextField

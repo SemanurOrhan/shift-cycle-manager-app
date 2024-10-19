@@ -35,9 +35,8 @@ export default function ShiftForm({ addShift }) {
   const [exitTime, setExitTime] = useState(null);
 
   const onSubmit = (data) => {
-    // Zaman değerlerini ISO formatında güncelle
-    data.entryTime = entryTime ? entryTime.toISOString().slice(11, 16) : "";
-    data.exitTime = exitTime ? exitTime.toISOString().slice(11, 16) : "";
+    data.entryTime = entryTime ? entryTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+    data.exitTime = exitTime ? exitTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
     addShift(data);
   };
 
@@ -63,16 +62,11 @@ export default function ShiftForm({ addShift }) {
                   {...register("shiftNumber", { valueAsNumber: true })}
                   defaultValue={0}
                 >
-                  <MenuItem value={1}>1</MenuItem>
-                  <MenuItem value={2}>2</MenuItem>
-                  <MenuItem value={3}>3</MenuItem>
-                  <MenuItem value={4}>4</MenuItem>
-                  <MenuItem value={5}>5</MenuItem>
-                  <MenuItem value={6}>6</MenuItem>
-                  <MenuItem value={7}>7</MenuItem>
-                  <MenuItem value={8}>8</MenuItem>
-                  <MenuItem value={9}>9</MenuItem>
-                  <MenuItem value={10}>10</MenuItem>
+                   {Array.from({ length: 10 }, (_, i) => (
+                    <MenuItem key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </MenuItem>
+                  ))}
                 </Select>
                 {errors.shiftNumber && (
                   <span>{errors.shiftNumber.message || "Shift Number must be between 1-10"}</span>
@@ -83,6 +77,7 @@ export default function ShiftForm({ addShift }) {
             <Grid item xs={12} sm={3} size={6}>
               <InputLabel htmlFor="entryTime">Entry Time</InputLabel>
               <TimePicker
+                fullWidth
                 label="hh:mm"
                 value={entryTime}
                 onChange={(newValue) => {
